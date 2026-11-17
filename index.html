@@ -4,46 +4,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IncidentLab | Login</title>
+    <title>IncidentLab | Faculty Console</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="login-container">
-        <div class="login-box">
+    <main>
+        <section class="login-container" id="loginView">
+            <div class="login-box">
 
-            <h1>IncidentLab</h1>
-            <p class="subtitle">Incident Simulation & Monitoring Platform</p>
+                <div class="brand-mark">IL</div>
+                <p class="eyebrow">FACULTY CONSOLE</p>
+                <h1>IncidentLab</h1>
+                <p class="subtitle">Incident simulation and VM monitoring platform</p>
 
-            <h2>Welcome Back</h2>
-            <p class="description">Please log in to your faculty account.</p>
+                <h2>Welcome back</h2>
+                <p class="description">Sign in to manage your incident exercises.</p>
 
-            <form id="loginForm">
+                <form id="loginForm">
 
-                <div class="input-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email"
-                           placeholder="Enter your email" required>
+                    <div class="input-group">
+                        <label for="email">Faculty email</label>
+                        <input type="email" id="email" placeholder="name@rp.edu.sg"
+                               autocomplete="username" required>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="label-row">
+                            <label for="password">Password</label>
+                            <a href="#" id="forgotPassword">Forgot password?</a>
+                        </div>
+                        <input type="password" id="password" placeholder="Enter your password"
+                               autocomplete="current-password" required>
+                    </div>
+
+                    <button type="submit">Sign in to console <span aria-hidden="true">→</span></button>
+                    <p id="message" role="status"></p>
+
+                </form>
+
+                <p class="signup-link">Need access? <a href="#" id="requestAccess">Request faculty access</a></p>
+
+            </div>
+            <p class="login-footer">Protected faculty workspace <span>•</span> v1.0</p>
+        </section>
+
+        <section class="dashboard" id="dashboardView" hidden>
+            <header class="topbar">
+                <a class="dashboard-brand" href="#" id="dashboardHome">
+                    <span class="brand-mark small">IL</span>
+                    <span>Incident<span>Lab</span></span>
+                </a>
+                <div class="topbar-actions">
+                    <span class="secure-status"><span class="status-dot online"></span> All systems operational</span>
+                    <button class="profile-button" id="profileButton" aria-label="Sign out">
+                        <span class="avatar">FC</span>
+                        <span class="profile-name">Faculty Console</span>
+                        <span aria-hidden="true">⌄</span>
+                    </button>
                 </div>
+            </header>
 
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password"
-                           placeholder="Enter your password" required>
+            <div class="dashboard-layout">
+                <aside class="sidebar">
+                    <div>
+                        <p class="sidebar-label">Workspace</p>
+                        <nav>
+                            <a class="nav-item active" href="#overview"><span class="nav-icon">▦</span> Overview</a>
+                            <a class="nav-item" href="#scenarios"><span class="nav-icon">◈</span> Scenarios</a>
+                            <a class="nav-item" href="#performance"><span class="nav-icon">⌁</span> Performance</a>
+                        </nav>
+                    </div>
+                    <div class="sidebar-bottom">
+                        <div class="help-card">
+                            <span class="help-icon">?</span>
+                            <strong>Need a hand?</strong>
+                            <p>View the platform guide</p>
+                        </div>
+                        <button class="logout-button" id="logoutButton"><span>↪</span> Sign out</button>
+                    </div>
+                </aside>
+
+                <div class="dashboard-content">
+                    <div class="page-heading">
+                        <div>
+                            <p class="eyebrow">OVERVIEW</p>
+                            <h2>Good evening, Professor</h2>
+                            <p>Monitor your student environments and launch an exercise.</p>
+                        </div>
+                        <button class="primary-button" id="newScenarioButton"><span>+</span> New scenario</button>
+                    </div>
+
+                    <div class="summary-grid">
+                        <article class="summary-card">
+                            <div class="summary-icon blue">▦</div>
+                            <div><p>Virtual machines</p><strong>7 <small>configured</small></strong></div>
+                            <span class="trend">100%</span>
+                        </article>
+                        <article class="summary-card">
+                            <div class="summary-icon green">✓</div>
+                            <div><p>Healthy systems</p><strong>5 <small>of 7 online</small></strong></div>
+                            <span class="trend">+1 today</span>
+                        </article>
+                        <article class="summary-card">
+                            <div class="summary-icon amber">◷</div>
+                            <div><p>Active exercises</p><strong>2 <small>running now</small></strong></div>
+                            <span class="trend neutral">Live</span>
+                        </article>
+                    </div>
+
+                    <div class="content-grid">
+                        <section class="panel vm-panel" id="overview">
+                            <div class="panel-heading">
+                                <div><h3>VM environments</h3><p>Real-time student machine health</p></div>
+                                <button class="filter-button">All environments <span>⌄</span></button>
+                            </div>
+                            <div class="vm-list">
+                                <div class="vm-row"><div class="vm-name"><span class="vm-icon">VM</span><div><strong>Student VM 01</strong><small>192.168.10.101</small></div></div><div class="vm-state healthy"><span class="status-dot"></span>Healthy</div><span class="vm-time">Just now</span><button class="more-button">•••</button></div>
+                                <div class="vm-row"><div class="vm-name"><span class="vm-icon">VM</span><div><strong>Student VM 02</strong><small>192.168.10.102</small></div></div><div class="vm-state healthy"><span class="status-dot"></span>Healthy</div><span class="vm-time">Just now</span><button class="more-button">•••</button></div>
+                                <div class="vm-row"><div class="vm-name"><span class="vm-icon">VM</span><div><strong>Student VM 03</strong><small>192.168.10.103</small></div></div><div class="vm-state warning"><span class="status-dot"></span>Recovering</div><span class="vm-time">2 min ago</span><button class="more-button">•••</button></div>
+                                <div class="vm-row"><div class="vm-name"><span class="vm-icon">VM</span><div><strong>Student VM 04</strong><small>192.168.10.104</small></div></div><div class="vm-state healthy"><span class="status-dot"></span>Healthy</div><span class="vm-time">Just now</span><button class="more-button">•••</button></div>
+                                <div class="vm-row"><div class="vm-name"><span class="vm-icon">VM</span><div><strong>Student VM 05</strong><small>192.168.10.105</small></div></div><div class="vm-state healthy"><span class="status-dot"></span>Healthy</div><span class="vm-time">Just now</span><button class="more-button">•••</button></div>
+                                <div class="vm-row"><div class="vm-name"><span class="vm-icon">VM</span><div><strong>Student VM 06</strong><small>192.168.10.106</small></div></div><div class="vm-state offline"><span class="status-dot"></span>Offline</div><span class="vm-time">8 min ago</span><button class="more-button">•••</button></div>
+                                <div class="vm-row"><div class="vm-name"><span class="vm-icon">VM</span><div><strong>Student VM 07</strong><small>192.168.10.107</small></div></div><div class="vm-state healthy"><span class="status-dot"></span>Healthy</div><span class="vm-time">Just now</span><button class="more-button">•••</button></div>
+                            </div>
+                            <button class="view-all-button">View detailed health report <span>→</span></button>
+                        </section>
+
+                        <aside class="right-column">
+                            <section class="panel activity-panel">
+                                <div class="panel-heading"><div><h3>Live activity</h3><p>Latest platform events</p></div><span class="live-pill"><span class="status-dot"></span> Live</span></div>
+                                <div class="activity-list">
+                                    <div class="activity-item"><span class="activity-marker blue"></span><div><strong>Scenario completed</strong><p>Student VM 02 submitted a response</p><small>3 minutes ago</small></div></div>
+                                    <div class="activity-item"><span class="activity-marker amber"></span><div><strong>Health check warning</strong><p>Student VM 03 is recovering</p><small>5 minutes ago</small></div></div>
+                                    <div class="activity-item"><span class="activity-marker red"></span><div><strong>VM disconnected</strong><p>Student VM 06 stopped responding</p><small>8 minutes ago</small></div></div>
+                                </div>
+                            </section>
+                            <section class="panel quick-panel">
+                                <p class="eyebrow">QUICK START</p><h3>Describe an incident</h3><p>Use plain English to create a scenario for your student VMs.</p><button class="secondary-button" id="quickStartButton">Start with a description <span>→</span></button>
+                            </section>
+                        </aside>
+                    </div>
+                    <p class="dashboard-footer">Last updated just now <span>•</span> IncidentLab monitoring service</p>
                 </div>
-
-                <button type="submit">Log In</button>
-                <p id="message"></p>
-
-            </form>
-
-            <p class="signup-link">
-                Don't have an account?
-                <a href="signup.html">Sign Up</a>
-            </p>
-
-        </div>
-    </div>
+            </div>
+        </section>
+    </main>
 
     <script src="script.js"></script>
 </body>
