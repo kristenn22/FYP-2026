@@ -56,3 +56,70 @@ document.querySelectorAll("#newScenarioButton, #quickStartButton").forEach((butt
         window.alert("Scenario builder coming soon. Describe your incident in plain English to get started.");
     });
 });
+
+document.getElementById("vmRegistrationForm").addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const vmName = document.getElementById("vmName").value.trim();
+    const vmAddress = document.getElementById("vmAddress").value.trim();
+    const vmOS = document.getElementById("vmOS").value.trim();
+
+    if (!vmName || !vmAddress || !vmOS) {
+        alert("Please fill in all VM details.");
+        return;
+    }
+
+    const row = document.createElement("div");
+    row.className = "vm-row";
+
+    const details = document.createElement("div");
+    details.className = "vm-name";
+
+    const icon = document.createElement("span");
+    icon.className = "vm-icon";
+    icon.textContent = "VM";
+
+    const nameText = document.createElement("div");
+    const name = document.createElement("strong");
+    name.textContent = vmName;
+
+    const address = document.createElement("small");
+    address.textContent = vmAddress + " | " + vmOS;
+
+    nameText.append(name, address);
+    details.append(icon, nameText);
+
+    const status = document.createElement("div");
+    status.className = "vm-state";
+    status.textContent = "Not checked";
+
+    const lastCheck = document.createElement("span");
+    lastCheck.className = "vm-time";
+    lastCheck.textContent = "Pending";
+
+    row.append(details, status, lastCheck);
+
+    document.querySelector(".vm-list").appendChild(row);
+    
+localStorage.setItem(
+    "incidentlabVMRows",
+    (localStorage.getItem("incidentlabVMRows") || "") + row.outerHTML
+);
+
+
+    document.querySelector(".summary-card strong").firstChild.textContent =
+         document.querySelector(".vm-list").children.length + " ";
+
+
+    document.getElementById("vmRegistrationForm").reset();
+    alert("VM added successfully!");
+});
+const savedVMRows = localStorage.getItem("incidentlabVMRows");
+
+if (savedVMRows) {
+    document.querySelector(".vm-list").insertAdjacentHTML("beforeend", savedVMRows);
+
+    document.querySelector(".summary-card strong").firstChild.textContent =
+        document.querySelector(".vm-list").children.length + " ";
+}
+
