@@ -69,6 +69,20 @@ document.getElementById("vmRegistrationForm").addEventListener("submit", functio
         return;
     }
 
+const existingAddresses = document.querySelectorAll(".vm-list .vm-name small");
+
+for (const addressElement of existingAddresses) {
+    const registeredAddress = addressElement.textContent.trim().toLowerCase();
+    const newAddress = vmAddress.toLowerCase();
+
+    if (registeredAddress === newAddress ||
+        registeredAddress.startsWith(newAddress + " | ")) {
+        alert("This IP address or hostname is already registered!");
+        return;
+    }
+}
+
+
     const row = document.createElement("div");
     row.className = "vm-row";
 
@@ -97,7 +111,16 @@ document.getElementById("vmRegistrationForm").addEventListener("submit", functio
     lastCheck.className = "vm-time";
     lastCheck.textContent = "Pending";
 
-    row.append(details, status, lastCheck);
+    
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.className = "more-button vm-remove-button";
+    removeButton.textContent = "×";
+    removeButton.title = "Remove this VM";
+    removeButton.setAttribute("aria-label", "Remove " + vmName);
+
+    row.append(details, status, lastCheck, removeButton);
+
 
     document.querySelector(".vm-list").appendChild(row);
     
@@ -122,4 +145,55 @@ if (savedVMRows) {
     document.querySelector(".summary-card strong").firstChild.textContent =
         document.querySelector(".vm-list").children.length + " ";
 }
+
+document.querySelector(".vm-list").addEventListener("click", function (event) {
+    if (!event.target.classList.contains("vm-remove-button")) {
+        return;
+    }
+
+    const row = event.target.closest(".vm-row");
+
+    if (!confirm("Are you sure you want to remove this VM?")) {
+        return;
+    }
+
+    row.remove();
+
+    let savedRows = "";
+
+    document.querySelectorAll(".vm-list .vm-row").forEach((vmRow) => {
+        if (vmRow.querySelector(".vm-state").textContent.trim() === "Not checked") {
+            savedRows += vmRow.outerHTML;
+        }
+    });
+
+    localStorage.setItem("incidentlabVMRows", savedRows);
+
+    document.querySelector(".summary-card strong").firstChild.textContent =
+        document.querySelector(".vm-list").children.length + " ";
+
+    alert("VM removed successfully!");
+});
+
+let updatedSavedRows = "";
+
+for (const vmRow of document.querySelectorAll(".vm-list .vm-row")) {
+    if (vmRow.querySelector(".vm-state").textContent.trim() === "Not checked") {
+
+        if (!vmRow.querySelector(".vm-remove-button")) {
+            const removeButton = document.createElement("button");
+            removeButton.type = "button";
+            removeButton.className = "more-button vm-remove-button";
+            removeButton.textContent = "×";
+            removeButton.title = "Remove this VM";
+
+            vmRow.appendChild(removeButton);
+        }
+
+        updatedSavedRows += vmRow.outerHTML;
+    }
+}
+
+localStorage.setItem("incidentlabVMRows", updatedSavedRows);
+
 
