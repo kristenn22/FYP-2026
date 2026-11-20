@@ -57,34 +57,72 @@ document.querySelectorAll("#newScenarioButton, #quickStartButton").forEach((butt
     });
 });
 
-document.getElementById("vmRegistrationForm").addEventListener("submit", function (event) {
-    event.preventDefault();
+const vmForm = document.getElementById("vmRegistrationForm");
+const vmList = document.querySelector(".vm-list");
+const vmCount = document.querySelector(".summary-card strong").firstChild;
+const vmStorageKey = "incidentlabVMs";
+const legacyVMStorageKey = "incidentlabVMRows";
+const demoVMAddresses = Array.from(vmList.querySelectorAll(".vm-name small"), (address) =>
+    address.textContent.trim().toLowerCase()
+);
 
-    const vmName = document.getElementById("vmName").value.trim();
-    const vmAddress = document.getElementById("vmAddress").value.trim();
-    const vmOS = document.getElementById("vmOS").value.trim();
-
-    if (!vmName || !vmAddress || !vmOS) {
-        alert("Please fill in all VM details.");
-        return;
+function loadRegisteredVMs() {
+    const savedVMs = localStorage.getItem(vmStorageKey);
+    if (savedVMs !== null) {
+        const vms = JSON.parse(savedVMs);
+        if (!Array.isArray(vms) || vms.some((vm) =>
+            !vm || typeof vm.id !== "string" || !vm.id ||
+            typeof vm.name !== "string" || typeof vm.address !== "string" ||
+            typeof vm.os !== "string"
+        ) || new Set(vms.map((vm) => vm.id)).size !== vms.length) {
+            throw new Error("Invalid saved VM records.");
+        }
+        return vms;
     }
 
-const existingAddresses = document.querySelectorAll(".vm-list .vm-name small");
-
-for (const addressElement of existingAddresses) {
-    const registeredAddress = addressElement.textContent.trim().toLowerCase();
-    const newAddress = vmAddress.toLowerCase();
-
-    if (registeredAddress === newAddress ||
-        registeredAddress.startsWith(newAddress + " | ")) {
-        alert("This IP address or hostname is already registered!");
-        return;
+    const legacyRows = localStorage.getItem(legacyVMStorageKey);
+    if (!legacyRows) {
+        return [];
     }
+
+    // Read data from the old rows without adding any of their HTML to the page.
+    const template = document.createElement("template");
+    template.innerHTML = legacyRows;
+    const rows = Array.from(template.content.children);
+    if (rows.length === 0) {
+        throw new Error("No VM rows found in legacy storage.");
+    }
+
+    const vms = rows.map((row) => {
+        const name = row.querySelector(".vm-name strong")?.textContent;
+        const details = row.querySelector(".vm-name small")?.textContent;
+        const separator = details?.indexOf(" | ") ?? -1;
+        if (!row.classList.contains("vm-row") || !name || separator < 1 ||
+            separator + 3 === details.length) {
+            throw new Error("Could not read a legacy VM row.");
+        }
+
+        return {
+            id: crypto.randomUUID(),
+            name,
+            address: details.slice(0, separator),
+            os: details.slice(separator + 3)
+        };
+    });
+
+    // Once JSON exists, future loads use it. Keep the old value as a backup.
+    saveRegisteredVMs(vms);
+    return vms;
 }
 
+function saveRegisteredVMs(vms) {
+    localStorage.setItem(vmStorageKey, JSON.stringify(vms));
+}
 
+function createVMRow(vm) {
     const row = document.createElement("div");
     row.className = "vm-row";
+    row.dataset.vmId = vm.id;
 
     const details = document.createElement("div");
     details.className = "vm-name";
@@ -95,10 +133,10 @@ for (const addressElement of existingAddresses) {
 
     const nameText = document.createElement("div");
     const name = document.createElement("strong");
-    name.textContent = vmName;
+    name.textContent = vm.name;
 
     const address = document.createElement("small");
-    address.textContent = vmAddress + " | " + vmOS;
+    address.textContent = vm.address + " | " + vm.os;
 
     nameText.append(name, address);
     details.append(icon, nameText);
@@ -111,89 +149,93 @@ for (const addressElement of existingAddresses) {
     lastCheck.className = "vm-time";
     lastCheck.textContent = "Pending";
 
-    
     const removeButton = document.createElement("button");
     removeButton.type = "button";
     removeButton.className = "more-button vm-remove-button";
     removeButton.textContent = "×";
     removeButton.title = "Remove this VM";
-    removeButton.setAttribute("aria-label", "Remove " + vmName);
+    removeButton.setAttribute("aria-label", "Remove " + vm.name);
 
     row.append(details, status, lastCheck, removeButton);
-
-
-    document.querySelector(".vm-list").appendChild(row);
-    
-localStorage.setItem(
-    "incidentlabVMRows",
-    (localStorage.getItem("incidentlabVMRows") || "") + row.outerHTML
-);
-
-
-    document.querySelector(".summary-card strong").firstChild.textContent =
-         document.querySelector(".vm-list").children.length + " ";
-
-
-    document.getElementById("vmRegistrationForm").reset();
-    alert("VM added successfully!");
-});
-const savedVMRows = localStorage.getItem("incidentlabVMRows");
-
-if (savedVMRows) {
-    document.querySelector(".vm-list").insertAdjacentHTML("beforeend", savedVMRows);
-
-    document.querySelector(".summary-card strong").firstChild.textContent =
-        document.querySelector(".vm-list").children.length + " ";
+    return row;
 }
 
-document.querySelector(".vm-list").addEventListener("click", function (event) {
-    if (!event.target.classList.contains("vm-remove-button")) {
+function displayRegisteredVMs(vms) {
+    const displayedRows = new Map();
+    for (const row of vmList.querySelectorAll(".vm-row[data-vm-id]")) {
+        displayedRows.set(row.dataset.vmId, row);
+    }
+
+    // Keep existing rows so adding or removing a VM leaves other statuses intact.
+    for (const vm of vms) {
+        if (displayedRows.has(vm.id)) {
+            displayedRows.delete(vm.id);
+        } else {
+            vmList.appendChild(createVMRow(vm));
+        }
+    }
+
+    for (const row of displayedRows.values()) {
+        row.remove();
+    }
+
+    vmCount.textContent = (demoVMAddresses.length + vms.length) + " ";
+}
+
+vmForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const name = document.getElementById("vmName").value.trim();
+    const address = document.getElementById("vmAddress").value.trim();
+    const os = document.getElementById("vmOS").value.trim();
+
+    if (!name || !address || !os) {
+        alert("Please fill in all VM details.");
         return;
     }
 
-    const row = event.target.closest(".vm-row");
+    try {
+        const vms = loadRegisteredVMs();
+        const addressKey = address.toLowerCase();
+        if (demoVMAddresses.includes(addressKey) ||
+            vms.some((vm) => vm.address.trim().toLowerCase() === addressKey)) {
+            alert("This IP address or hostname is already registered!");
+            return;
+        }
 
-    if (!confirm("Are you sure you want to remove this VM?")) {
+        const updatedVMs = [...vms, { id: crypto.randomUUID(), name, address, os }];
+        saveRegisteredVMs(updatedVMs);
+        displayRegisteredVMs(updatedVMs);
+        vmForm.reset();
+        alert("VM added successfully!");
+    } catch (error) {
+        console.error(error);
+        alert("Could not save this VM. Check that browser storage is available.");
+    }
+});
+
+vmList.addEventListener("click", function (event) {
+    const button = event.target.closest(".vm-remove-button");
+    const row = button?.closest(".vm-row[data-vm-id]");
+    if (!row || !confirm("Are you sure you want to remove this VM?")) {
         return;
     }
 
-    row.remove();
-
-    let savedRows = "";
-
-    document.querySelectorAll(".vm-list .vm-row").forEach((vmRow) => {
-        if (vmRow.querySelector(".vm-state").textContent.trim() === "Not checked") {
-            savedRows += vmRow.outerHTML;
-        }
-    });
-
-    localStorage.setItem("incidentlabVMRows", savedRows);
-
-    document.querySelector(".summary-card strong").firstChild.textContent =
-        document.querySelector(".vm-list").children.length + " ";
-
-    alert("VM removed successfully!");
+    try {
+        const vms = loadRegisteredVMs();
+        const updatedVMs = vms.filter((vm) => vm.id !== row.dataset.vmId);
+        saveRegisteredVMs(updatedVMs);
+        displayRegisteredVMs(updatedVMs);
+        alert("VM removed successfully!");
+    } catch (error) {
+        console.error(error);
+        alert("Could not remove this VM. Check that browser storage is available.");
+    }
 });
 
-let updatedSavedRows = "";
-
-for (const vmRow of document.querySelectorAll(".vm-list .vm-row")) {
-    if (vmRow.querySelector(".vm-state").textContent.trim() === "Not checked") {
-
-        if (!vmRow.querySelector(".vm-remove-button")) {
-            const removeButton = document.createElement("button");
-            removeButton.type = "button";
-            removeButton.className = "more-button vm-remove-button";
-            removeButton.textContent = "×";
-            removeButton.title = "Remove this VM";
-
-            vmRow.appendChild(removeButton);
-        }
-
-        updatedSavedRows += vmRow.outerHTML;
-    }
+try {
+    displayRegisteredVMs(loadRegisteredVMs());
+} catch (error) {
+    console.error("Could not load registered VMs.", error);
+    alert("Could not load registered VMs. Your saved data was left in browser storage.");
 }
-
-localStorage.setItem("incidentlabVMRows", updatedSavedRows);
-
-
