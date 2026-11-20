@@ -63,8 +63,35 @@ const vmCount = document.querySelector(".summary-card strong").firstChild;
 const vmStorageKey = "incidentlabVMs";
 const legacyVMStorageKey = "incidentlabVMRows";
 const demoVMAddresses = Array.from(vmList.querySelectorAll(".vm-name small"), (address) =>
-    address.textContent.trim().toLowerCase()
+    vmAddressKey(address.textContent)
 );
+
+function vmAddressKey(address) {
+    // DNS names are case-insensitive and may end with a dot.
+    return address.trim().toLowerCase().replace(/\.$/, "");
+}
+
+function isValidVMAddress(address) {
+    if (!/^[a-zA-Z0-9.-]+$/.test(address)) {
+        return false;
+    }
+
+    if (/^[0-9.]+$/.test(address)) {
+        // A numeric address must be four decimal numbers from 0 to 255.
+        const parts = address.split(".");
+        return parts.length === 4 && parts.every((part) =>
+            /^(0|[1-9][0-9]{0,2})$/.test(part) && Number(part) <= 255
+        );
+    }
+
+    const hostname = vmAddressKey(address);
+    const labels = hostname.split(".");
+    const lastLabel = labels[labels.length - 1];
+    // Each DNS label uses letters, digits or hyphens and must start and end with a letter or digit.
+    const validLabel = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/;
+    return hostname.length <= 253 && !/^[0-9]+$/.test(lastLabel) &&
+        labels.every((label) => validLabel.test(label));
+}
 
 function loadRegisteredVMs() {
     const savedVMs = localStorage.getItem(vmStorageKey);
@@ -199,11 +226,17 @@ vmForm.addEventListener("submit", function (event) {
         return;
     }
 
+    if (!isValidVMAddress(address)) {
+        alert("Enter a valid IPv4 address or hostname, such as 192.168.10.108 or student-vm.example.com.");
+        document.getElementById("vmAddress").focus();
+        return;
+    }
+
     try {
         const vms = loadRegisteredVMs();
-        const addressKey = address.toLowerCase();
+        const addressKey = vmAddressKey(address);
         if (demoVMAddresses.includes(addressKey) ||
-            vms.some((vm) => vm.address.trim().toLowerCase() === addressKey)) {
+            vms.some((vm) => vmAddressKey(vm.address) === addressKey)) {
             alert("This IP address or hostname is already registered!");
             return;
         }
