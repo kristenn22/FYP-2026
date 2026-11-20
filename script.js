@@ -138,7 +138,12 @@ function createVMRow(vm) {
     const address = document.createElement("small");
     address.textContent = vm.address + " | " + vm.os;
 
-    nameText.append(name, address);
+    const monitoringInfo = document.createElement("small");
+monitoringInfo.className = "vm-monitoring-info";
+monitoringInfo.textContent =
+    "Uptime: Awaiting monitoring | Downtime: Awaiting monitoring";
+
+nameText.append(name, address, monitoringInfo);
     details.append(icon, nameText);
 
     const status = document.createElement("div");

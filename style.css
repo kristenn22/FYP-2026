@@ -70,5 +70,18 @@ form button span { float: right; font-size: 18px; line-height: 12px; }
     background: #2857ce;
 }
 
+
+/* VM Monitoring Information */
+.vm-name .vm-monitoring-info {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 6px;
+    line-height: 1.5;
+}
+
+.vm-row[data-vm-id] {
+    min-height: 76px;
+}
+
 @media (max-width: 850px) { .sidebar { width: 190px; }.content-grid { grid-template-columns: 1fr; }.right-column { grid-template-columns: 1fr 1fr; }.profile-name, .secure-status { display: none; } }
 @media (max-width: 600px) { .topbar { padding: 0 20px; }.dashboard-layout { display: block; }.sidebar { border-bottom: 1px solid var(--line); border-right: 0; display: block; padding: 15px 20px; width: 100%; }.sidebar-label, .sidebar-bottom { display: none; } nav { display: flex; gap: 5px; }.nav-item { margin: 0; padding: 9px 10px; }.dashboard-content { padding: 28px 20px; }.page-heading { align-items: start; flex-direction: column; gap: 18px; }.summary-grid, .right-column { grid-template-columns: 1fr; }.vm-row { gap: 5px; grid-template-columns: minmax(135px, 1fr) 82px 20px; padding: 0 12px; }.vm-time { display: none; }.login-box { padding: 35px 25px; } }
