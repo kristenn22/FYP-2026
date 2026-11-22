@@ -71,6 +71,8 @@
                         <p class="sidebar-label">Workspace</p>
                         <nav>
                             <a class="nav-item active" href="#overview"><span class="nav-icon">▦</span> Overview</a>
+                            <a class="nav-item" href="#vm-registration" id="vmRegistrationLink"><span class="nav-icon">▣</span> VM Registration</a>
+                            <a class="nav-item" href="#scenarios"><span class="nav-icon">◈</span> Scenarios</a>
                             <a class="nav-item" href="#incidents"><span class="nav-icon">⚠</span> Incident Management</a>
                             <a class="nav-item" href="#performance"><span class="nav-icon">⌁</span> Performance</a>
                         </nav>
@@ -145,6 +147,37 @@
                             </section>
                         </aside>
                     </div>
+<section class="panel vm-registration-panel" id="vm-registration">
+    <div class="panel-heading">
+        <div>
+            <h3>Register a Virtual Machine</h3>
+            <p>Add a student VM to IncidentLab.</p>
+        </div>
+    </div>
+
+    <form id="vmRegistrationForm">
+        <div class="input-group">
+            <label for="vmName">VM Name</label>
+            <input type="text" id="vmName"
+                   placeholder="e.g. Student VM 08" required>
+        </div>
+
+        <div class="input-group">
+            <label for="vmAddress">IP Address / Hostname</label>
+            <input type="text" id="vmAddress"
+                   placeholder="e.g. 192.168.10.108" required>
+        </div>
+
+        <div class="input-group">
+            <label for="vmOS">Operating System</label>
+            <input type="text" id="vmOS"
+                   placeholder="e.g. Ubuntu 24.04" required>
+        </div>
+
+        <button type="submit">Register VM</button>
+    </form>
+</section>
+
                     <p class="dashboard-footer">Last updated just now <span>•</span> IncidentLab monitoring service</p>
                 </div>
 
