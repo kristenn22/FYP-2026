@@ -80,6 +80,18 @@ function saveScenarios() {
     localStorage.setItem("incidentLabScenarios", JSON.stringify(scenarios));
 }
 
+function deleteIncident(scenario) {
+    const confirmed = window.confirm(
+        `Delete "${scenario.name}"? This will also remove its saved script.`
+    );
+    if (!confirmed) return;
+
+    scenarios = scenarios.filter((item) => item.id !== scenario.id);
+    saveScenarios();
+    renderSavedScenarios();
+    showToast(`"${scenario.name}" deleted`);
+}
+
 function renderSavedScenarios() {
     scenarioGrid.replaceChildren();
 
@@ -123,7 +135,17 @@ function renderSavedScenarios() {
         reuseButton.textContent = "Reuse incident";
         reuseButton.addEventListener("click", () => openScenario("reuse", scenario));
 
-        card.append(icon, content, reuseButton);
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "scenario-delete";
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", () => deleteIncident(scenario));
+
+        const cardActions = document.createElement("div");
+        cardActions.className = "scenario-card-actions";
+        cardActions.append(reuseButton, deleteButton);
+
+        card.append(icon, content, cardActions);
         scenarioGrid.appendChild(card);
     });
 }
