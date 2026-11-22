@@ -71,7 +71,6 @@
                         <p class="sidebar-label">Workspace</p>
                         <nav>
                             <a class="nav-item active" href="#overview"><span class="nav-icon">▦</span> Overview</a>
-                            <a class="nav-item" href="#scenarios"><span class="nav-icon">◈</span> Scenarios</a>
                             <a class="nav-item" href="#incidents"><span class="nav-icon">⚠</span> Incident Management</a>
                             <a class="nav-item" href="#performance"><span class="nav-icon">⌁</span> Performance</a>
                         </nav>
@@ -86,14 +85,14 @@
                     </div>
                 </aside>
 
-                <div class="dashboard-content">
+                <div class="dashboard-content" id="overviewView">
                     <div class="page-heading">
                         <div>
                             <p class="eyebrow">OVERVIEW</p>
                             <h2>Good evening, Professor</h2>
                             <p>Monitor your student environments and launch an exercise.</p>
                         </div>
-                        <button class="primary-button" id="newScenarioButton"><span>+</span> New scenario</button>
+                        <button class="primary-button" id="newScenarioButton"><span>+</span> New incident</button>
                     </div>
 
                     <div class="summary-grid">
@@ -109,8 +108,8 @@
                         </article>
                         <article class="summary-card">
                             <div class="summary-icon amber">◷</div>
-                            <div><p>Active exercises</p><strong>2 <small>running now</small></strong></div>
-                            <span class="trend neutral">Live</span>
+                            <div><p>Active exercises</p><strong id="activeExerciseCount">2 <small>running now</small></strong></div>
+                            <span class="trend neutral" id="activeExerciseStatus">Live</span>
                         </article>
                     </div>
 
@@ -141,16 +140,87 @@
                                     <div class="activity-item"><span class="activity-marker red"></span><div><strong>VM disconnected</strong><p>Student VM 06 stopped responding</p><small>8 minutes ago</small></div></div>
                                 </div>
                             </section>
-                            <section class="panel quick-panel" id="incidents">
+                            <section class="panel quick-panel">
                                 <p class="eyebrow">QUICK START</p><h3>Describe an incident</h3><p>Use plain English to create a scenario for your student VMs.</p><button class="secondary-button" id="quickStartButton">Start with a description <span>→</span></button>
                             </section>
                         </aside>
                     </div>
                     <p class="dashboard-footer">Last updated just now <span>•</span> IncidentLab monitoring service</p>
                 </div>
+
+                <div class="dashboard-content scenarios-page" id="scenariosView" hidden>
+                    <div class="page-heading">
+                        <div>
+                            <p class="eyebrow">INCIDENT MANAGEMENT</p>
+                            <h2>Saved incidents</h2>
+                            <p>Reuse a previous incident or create a new one.</p>
+                        </div>
+                        <button class="primary-button" id="scenariosNewButton"><span>+</span> New incident</button>
+                    </div>
+                    <div class="scenario-grid" id="scenarioGrid"></div>
+                </div>
             </div>
         </section>
     </main>
+
+    <dialog class="scenario-dialog" id="scenarioDialog">
+        <form id="scenarioForm">
+            <div class="dialog-heading">
+                <div>
+                    <p class="eyebrow" id="scenarioDialogEyebrow">NEW INCIDENT</p>
+                    <h2 id="scenarioDialogTitle">Create an incident</h2>
+                </div>
+                <button type="button" class="dialog-close" id="closeScenarioDialog" aria-label="Close">×</button>
+            </div>
+
+            <input type="hidden" id="scenarioId">
+            <div class="dialog-field">
+                <label for="scenarioName">Incident name</label>
+                <input type="text" id="scenarioName" placeholder="e.g. Suspicious login investigation" required>
+            </div>
+            <div class="dialog-field">
+                <label for="scenarioDescription">Incident description</label>
+                <textarea id="scenarioDescription" rows="4" placeholder="Describe the incident and tasks for students..." required></textarea>
+            </div>
+            <button type="button" class="generate-script-button" id="generateScriptButton">
+                <span aria-hidden="true">✦</span> Generate script from description
+            </button>
+            <p class="generation-status" id="generationStatus" role="status"></p>
+            <div class="dialog-field generated-script-field" id="generatedScriptField" hidden>
+                <label for="scenarioScript">Generated incident script</label>
+                <textarea id="scenarioScript" rows="8" placeholder="The generated script will appear here..." spellcheck="false"></textarea>
+                <p>You can review and edit the script before saving the incident.</p>
+            </div>
+            <div class="dialog-grid">
+                <div class="dialog-field">
+                    <label for="scenarioVm">Target VM</label>
+                    <select id="scenarioVm">
+                        <option>Student VM 01</option>
+                        <option>Student VM 02</option>
+                        <option>Student VM 03</option>
+                        <option>Student VM 04</option>
+                        <option>Student VM 05</option>
+                    </select>
+                </div>
+                <div class="dialog-field">
+                    <label for="scenarioDuration">Duration</label>
+                    <select id="scenarioDuration">
+                        <option value="30">30 minutes</option>
+                        <option value="60" selected>60 minutes</option>
+                        <option value="90">90 minutes</option>
+                        <option value="120">2 hours</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="dialog-actions">
+                <button type="button" class="dialog-cancel" id="cancelScenario">Cancel</button>
+                <button type="submit" class="dialog-submit" id="scenarioSubmit">Save incident</button>
+            </div>
+        </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="script.js"></script>
 </body>
