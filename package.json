@@ -1,9 +1,11 @@
 {
   "name": "incidentlab-connected",
   "version": "1.0.0",
+  "private": true,
   "description": "",
   "main": "script.js",
-  "scripts": {
+    "scripts": {
+    "start": "node backend/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
